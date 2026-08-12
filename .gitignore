@@ -1,0 +1,11 @@
+# Ket qua build
+build/*
+!build/.gitkeep
+*.o
+
+# Du lieu sinh ra khi chay thuc nghiem (giu lai cau truc thu muc)
+experimental/data/**/*.txt
+experimental/compressed/**/*
+!experimental/compressed/**/.gitkeep
+experimental/decompressed/**/*
+!experimental/decompressed/**/.gitkeep
