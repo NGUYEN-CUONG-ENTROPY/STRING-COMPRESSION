@@ -1,0 +1,5 @@
+# Git tren Windows mac dinh doi LF <-> CRLF. Cac file duoi day phai giu nguyen
+# tung byte, neu khong ket qua nen/giai nen se khac voi file expected.
+source/tests/input/**   -text
+source/tests/expected/** -text
+*.rle                   binary
