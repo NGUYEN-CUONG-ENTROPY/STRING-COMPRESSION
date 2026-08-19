@@ -12,17 +12,33 @@ SRCS      = $(SRCDIR)/main.cpp       \
             $(SRCDIR)/bit_io.cpp     \
             $(SRCDIR)/utils.cpp
 
+# Ban build tam thoi chi gom RLE, dung khi huffman/lzw/arithmetic chua hoan thanh.
+RLE_SRCS  = $(SRCDIR)/main.cpp $(SRCDIR)/rle.cpp $(SRCDIR)/utils.cpp
+
 all: $(EXEC)
 
 $(EXEC): $(SRCS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+rle: $(RLE_SRCS)
+	$(CXX) $(CXXFLAGS) -DRLE_ONLY $^ -o $(EXEC)
+
 clean:
 	rm -f $(BUILDDIR)/*.exe $(BUILDDIR)/*.o
 
+# Kiem thu RLE: nen roi giai nen tung file trong tests/input va so sanh voi ban goc.
+test-rle:
+	@echo "Running RLE round-trip tests..."
+	@for f in $(SRCDIR)/tests/input/*.txt; do \
+		n=`basename $$f .txt`; \
+		$(EXEC) -a rle -m c -i $$f -o $(BUILDDIR)/$$n.rle > /dev/null && \
+		$(EXEC) -a rle -m d -i $(BUILDDIR)/$$n.rle -o $(BUILDDIR)/$$n.out > /dev/null && \
+		if cmp -s $$f $(BUILDDIR)/$$n.out; then echo "PASS $$n"; else echo "FAIL $$n"; fi; \
+	done
+
 test: $(EXEC)
 	@echo "Running tests..."
-	$(EXEC) -a rle -m c -i $(SRCDIR)/tests/input/english_10KB.txt -o $(BUILDDIR)/test_out.rle
+	$(EXEC) -a rle -m c -i $(SRCDIR)/tests/input/puzzle.txt -o $(BUILDDIR)/test_out.rle
 	$(EXEC) -a rle -m d -i $(BUILDDIR)/test_out.rle -o $(BUILDDIR)/test_decomp.txt
 
-.PHONY: all clean test
+.PHONY: all rle clean test test-rle
