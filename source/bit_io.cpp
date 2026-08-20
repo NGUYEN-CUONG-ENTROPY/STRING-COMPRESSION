@@ -49,3 +49,15 @@ bool BitReader::readBit(bool& bit) {
     --bitsRemaining_;
     return true;
 }
+
+bool BitReader::isAtEndWithZeroPadding() {
+    if (buffer_ != 0) {
+        return false;
+    }
+
+    char extraByte = 0;
+    if (input_.get(extraByte)) {
+        return false;
+    }
+    return input_.eof();
+}

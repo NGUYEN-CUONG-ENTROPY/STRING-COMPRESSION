@@ -195,6 +195,16 @@ std::uint64_t readHeader(std::istream& input, Frequencies& frequencies) {
     return originalSize;
 }
 
+void requireEndOfFile(std::istream& input) {
+    char extraByte = 0;
+    if (input.get(extraByte)) {
+        throw std::runtime_error("Huffman error: unexpected trailing payload.");
+    }
+    if (!input.eof()) {
+        throw std::runtime_error("Huffman error: failed while reading compressed file.");
+    }
+}
+
 }  // namespace
 
 void compress_huffman(const std::string& inputPath, const std::string& outputPath) {
@@ -274,10 +284,12 @@ void decompress_huffman(const std::string& inputPath, const std::string& outputP
     }
 
     if (originalSize == 0) {
+        requireEndOfFile(input);
         return;
     }
 
     if (root->isLeaf()) {
+        requireEndOfFile(input);
         std::array<char, 8192> block{};
         block.fill(static_cast<char>(root->symbol));
         std::uint64_t remaining = originalSize;
@@ -290,6 +302,7 @@ void decompress_huffman(const std::string& inputPath, const std::string& outputP
         }
     } else {
         BitReader reader(input);
+        Frequencies decodedFrequencies{};
         for (std::uint64_t produced = 0; produced < originalSize; ++produced) {
             Node* current = root;
             while (!current->isLeaf()) {
@@ -303,6 +316,14 @@ void decompress_huffman(const std::string& inputPath, const std::string& outputP
                 }
             }
             output.put(static_cast<char>(current->symbol));
+            ++decodedFrequencies[static_cast<std::size_t>(current->symbol)];
+        }
+
+        if (decodedFrequencies != frequencies) {
+            throw std::runtime_error("Huffman error: payload does not match frequency table.");
+        }
+        if (!reader.isAtEndWithZeroPadding()) {
+            throw std::runtime_error("Huffman error: invalid padding or trailing payload.");
         }
     }
 

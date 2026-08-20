@@ -9,6 +9,7 @@
 // khi gap loi.
 // ---------------------------------------------------------------------------
 
+#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -142,10 +143,13 @@ static void run_algorithm(const Options &opts)
     }
     else
     {
-        if (compressing)
-            compress_arithmetic(opts.input_path, opts.output_path);
-        else
-            decompress_arithmetic(opts.input_path, opts.output_path);
+        const bool succeeded = compressing
+            ? compress_arithmetic(opts.input_path, opts.output_path)
+            : decompress_arithmetic(opts.input_path, opts.output_path);
+        if (!succeeded)
+        {
+            throw std::runtime_error("Arithmetic Coding failed.");
+        }
     }
 #else
     else
@@ -181,6 +185,17 @@ int main(int argc, char *argv[])
         if (input_size < 0)
         {
             throw std::runtime_error("Khong doc duoc file dau vao: " + opts.input_path);
+        }
+
+        std::error_code path_error;
+        if (std::filesystem::exists(opts.output_path, path_error))
+        {
+            path_error.clear();
+            if (std::filesystem::equivalent(opts.input_path, opts.output_path, path_error) &&
+                !path_error)
+            {
+                throw std::runtime_error("File dau vao va dau ra phai khac nhau.");
+            }
         }
 
         Timer timer;

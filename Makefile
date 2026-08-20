@@ -3,6 +3,9 @@ CXXFLAGS  = -std=c++17 -O2 -Wall
 SRCDIR    = source
 BUILDDIR  = build
 EXEC      = $(BUILDDIR)/compressor.exe
+RLE_EXEC  = $(BUILDDIR)/compressor_rle.exe
+COMPARE   = $(BUILDDIR)/compare_files.exe
+NULLDEV   = /dev/null
 
 SRCS      = $(SRCDIR)/main.cpp       \
             $(SRCDIR)/rle.cpp        \
@@ -20,39 +23,41 @@ all: $(EXEC)
 $(EXEC): $(SRCS) | $(BUILDDIR)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+$(COMPARE): $(SRCDIR)/tests/compare_files.cpp | $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) $< -o $@
+
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
 
-rle: $(RLE_SRCS)
-	$(CXX) $(CXXFLAGS) -DRLE_ONLY $^ -o $(EXEC)
+$(RLE_EXEC): $(RLE_SRCS) | $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) -DRLE_ONLY $^ -o $@
+
+rle: $(RLE_EXEC)
 
 clean:
 	rm -f $(BUILDDIR)/*.exe $(BUILDDIR)/*.o
 
 # Kiem thu RLE: nen roi giai nen tung file trong tests/input va so sanh voi ban goc.
-test-rle:
+test-rle: $(EXEC) $(COMPARE)
 	@echo "Running RLE round-trip tests..."
-	@for f in $(SRCDIR)/tests/input/*.txt; do \
-		n=`basename $$f .txt`; \
-		$(EXEC) -a rle -m c -i $$f -o $(BUILDDIR)/$$n.rle > /dev/null && \
-		$(EXEC) -a rle -m d -i $(BUILDDIR)/$$n.rle -o $(BUILDDIR)/$$n.out > /dev/null && \
-		if cmp -s $$f $(BUILDDIR)/$$n.out; then echo "PASS $$n"; else echo "FAIL $$n"; fi; \
-	done
+	@failed=0; for f in $(SRCDIR)/tests/input/*.txt; do \
+		n=$${f##*/}; n=$${n%.txt}; \
+		if $(EXEC) -a rle -m c -i "$$f" -o $(BUILDDIR)/$$n.rle > $(NULLDEV) && \
+		   $(EXEC) -a rle -m d -i $(BUILDDIR)/$$n.rle -o $(BUILDDIR)/$$n.rle.out > $(NULLDEV) && \
+		   $(COMPARE) "$$f" $(BUILDDIR)/$$n.rle.out > $(NULLDEV); \
+		then echo "PASS $$n"; else echo "FAIL $$n"; failed=1; fi; \
+	done; exit $$failed
 
-test: $(EXEC)
-	@echo "Running tests..."
-	$(EXEC) -a rle -m c -i $(SRCDIR)/tests/input/puzzle.txt -o $(BUILDDIR)/test_out.rle
-	$(EXEC) -a rle -m d -i $(BUILDDIR)/test_out.rle -o $(BUILDDIR)/test_decomp.txt
+test-huffman: $(EXEC) $(COMPARE)
 	@echo "Running Huffman round-trip tests..."
-	$(EXEC) -a huff -m c -i $(SRCDIR)/tests/english_10kb.txt -o $(BUILDDIR)/test_out.huff
-	$(EXEC) -a huff -m d -i $(BUILDDIR)/test_out.huff -o $(BUILDDIR)/test_decomp.txt
-	cmp $(SRCDIR)/tests/english_10kb.txt $(BUILDDIR)/test_decomp.txt
-	$(EXEC) -a huff -m c -i $(SRCDIR)/tests/repetitive_sample.txt -o $(BUILDDIR)/test_repetitive.huff
-	$(EXEC) -a huff -m d -i $(BUILDDIR)/test_repetitive.huff -o $(BUILDDIR)/test_repetitive.txt
-	cmp $(SRCDIR)/tests/repetitive_sample.txt $(BUILDDIR)/test_repetitive.txt
-	$(EXEC) -a huff -m c -i $(SRCDIR)/tests/empty.txt -o $(BUILDDIR)/test_empty.huff
-	$(EXEC) -a huff -m d -i $(BUILDDIR)/test_empty.huff -o $(BUILDDIR)/test_empty.txt
-	cmp $(SRCDIR)/tests/empty.txt $(BUILDDIR)/test_empty.txt
-	@echo "All Huffman round-trip tests passed."
+	@failed=0; for f in $(SRCDIR)/tests/input/*.txt; do \
+		n=$${f##*/}; n=$${n%.txt}; \
+		if $(EXEC) -a huff -m c -i "$$f" -o $(BUILDDIR)/$$n.huff > $(NULLDEV) && \
+		   $(EXEC) -a huff -m d -i $(BUILDDIR)/$$n.huff -o $(BUILDDIR)/$$n.huff.out > $(NULLDEV) && \
+		   $(COMPARE) "$$f" $(BUILDDIR)/$$n.huff.out > $(NULLDEV); \
+		then echo "PASS $$n"; else echo "FAIL $$n"; failed=1; fi; \
+	done; exit $$failed
 
-.PHONY: all rle clean test test-rle
+test: test-rle test-huffman
+
+.PHONY: all rle clean test test-rle test-huffman

@@ -23,8 +23,12 @@ class BitReader
 public:
     explicit BitReader(std::istream &input);
 
-    // Returns false when no complete byte remains in the input stream.
+    // Returns false when no more bytes remain in the input stream.
     bool readBit(bool &bit);
+
+    // A valid payload may end with zero padding in the current byte, but it
+    // must not contain non-zero padding or trailing bytes.
+    bool isAtEndWithZeroPadding();
 
 private:
     std::istream &input_;

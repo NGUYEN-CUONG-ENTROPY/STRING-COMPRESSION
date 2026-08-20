@@ -74,9 +74,9 @@ bool compress_arithmetic(const string& input_file, const string& output_file) {
         while (true) {
             if ((high & HALF) == (low & HALF)) {
                 bool bit = (high & HALF) != 0;
-                bit_writer.write_bit(bit ? 1 : 0);
+                bit_writer.writeBit(bit);
                 while (pending_bits > 0) {
-                    bit_writer.write_bit(bit ? 0 : 1);
+                    bit_writer.writeBit(!bit);
                     pending_bits--;
                 }
             } else if ((low & QUARTER_1) && !(high & QUARTER_1)) {
@@ -102,9 +102,9 @@ bool compress_arithmetic(const string& input_file, const string& output_file) {
     // Đẩy các bit cuối (Flush)
     pending_bits++;
     bool bit = (low & QUARTER_1) != 0;
-    bit_writer.write_bit(bit ? 1 : 0);
+    bit_writer.writeBit(bit);
     while (pending_bits > 0) {
-        bit_writer.write_bit(bit ? 0 : 1);
+        bit_writer.writeBit(!bit);
         pending_bits--;
     }
     bit_writer.flush();
@@ -146,8 +146,9 @@ bool decompress_arithmetic(const string& input_file, const string& output_file) 
 
     // Đọc 32 bit đầu tiên vào value
     for (int i = 0; i < 32; ++i) {
-        int b = bit_reader.read_bit();
-        value = (value << 1) | (b == 1 ? 1 : 0);
+        bool bit = false;
+        bit_reader.readBit(bit);
+        value = (value << 1) | (bit ? 1U : 0U);
     }
 
     while (true) {
@@ -184,8 +185,9 @@ bool decompress_arithmetic(const string& input_file, const string& output_file) 
             }
             low = (low << 1);
             high = (high << 1) | 1;
-            int b = bit_reader.read_bit();
-            value = (value << 1) | (b == 1 ? 1 : 0);
+            bool bit = false;
+            bit_reader.readBit(bit);
+            value = (value << 1) | (bit ? 1U : 0U);
         }
     }
 
