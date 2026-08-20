@@ -30,12 +30,12 @@ STRING-COMPRESSION/
 │   ├── data/
 │   │   ├── scenario1_size/          # English text: 10KB → 10MB
 │   │   └── scenario2_entropy/       # repetitive, English, random (1MB)
-│   ├── compressed/                  # File đã nén
+│   ├── artifacts/                   # File nén/giải nén để verify lossless
 │   │   ├── rle/ / huff/ / lzw/ / arith/
-│   ├── decompressed/                # File giải nén (verify lossless)
-│   │   ├── rle/ / huff/ / lzw/ / arith/
+│   ├── results/                     # CSV, bảng Markdown, metadata, charts
 │   ├── gen_test_data.py             # Script sinh file test
-│   └── run_experiments.py           # Script chạy benchmark tự động
+│   ├── run_experiments.py           # Script chạy benchmark tự động
+│   └── plot_results.py              # Vẽ biểu đồ PNG (tùy chọn)
 │
 ├── Makefile                         # Build script
 ├── Report.pdf                       # Báo cáo đồ án
@@ -113,10 +113,10 @@ Luồng dữ liệu khi chạy experiment:
 ```
 experimental/data/*.txt
   -> compressor.exe -m c
-    -> experimental/compressed/{algorithm}/*.bin
+    -> experimental/artifacts/{algorithm}/*.bin
       -> compressor.exe -m d
-        -> experimental/decompressed/{algorithm}/*.txt
-          -> diff voi file goc (verify lossless)
+        -> experimental/artifacts/{algorithm}/*.restored.txt
+          -> so sanh SHA-256 voi file goc (verify lossless)
 ```
 
 **Scenario 1** - Anh huong cua kich thuoc file: co dinh English text, chay tu 10 KB den 10 MB.
@@ -128,9 +128,13 @@ experimental/data/*.txt
 
 Sinh du lieu va benchmark tu dong:
 ```bash
-python experimental/gen_test_data.py
-python experimental/run_experiments.py
+python experimental/run_experiments.py --build --regenerate-data --repeats 5 --warmups 1
 ```
+
+Script benchmark chay ca 4 thuat toan, giai nen va kiem tra SHA-256 sau moi
+trial, sau do xuat `raw_results.csv`, `summary.csv`, `report_table.md` va
+`run_metadata.json` trong `experimental/results/`. Xem huong dan chi tiet tai
+[`experimental/README.md`](experimental/README.md).
 
 ---
 

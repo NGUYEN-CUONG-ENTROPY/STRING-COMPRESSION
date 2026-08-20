@@ -5,10 +5,15 @@ build/*
 
 # Du lieu sinh ra khi chay thuc nghiem (giu lai cau truc thu muc)
 experimental/data/**/*.txt
+experimental/data/manifest.csv
 experimental/compressed/**/*
 !experimental/compressed/**/.gitkeep
 experimental/decompressed/**/*
 !experimental/decompressed/**/.gitkeep
+experimental/artifacts/**/*
+experimental/results/**/*
 
 build/
 tmp/
+__pycache__/
+*.pyc

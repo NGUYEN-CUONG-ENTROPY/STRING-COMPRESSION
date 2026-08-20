@@ -68,7 +68,16 @@ CSC10004 - Summer 2026
 
 6. Experiments:
    - Test data:    ../experimental/data/
-   - Compressed:   ../experimental/compressed/{algorithm}/
-   - Decompressed: ../experimental/decompressed/{algorithm}/
+   - Artifacts:    ../experimental/artifacts/{algorithm}/
+   - Results:      ../experimental/results/
    - Scripts:      ../experimental/gen_test_data.py (generate test files)
                    ../experimental/run_experiments.py (auto benchmark)
+
+   Chay day du (4 algorithms, 2 scenarios, verify SHA-256 moi trial):
+   > py experimental/run_experiments.py --build --regenerate-data --repeats 5 --warmups 1
+
+   Bang co the dua vao report:
+   > experimental/results/report_table.md
+
+   Huong dan va tuy chon chi tiet:
+   > experimental/README.md
