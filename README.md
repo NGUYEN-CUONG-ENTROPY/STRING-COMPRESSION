@@ -76,11 +76,22 @@ compressor.exe -a <algorithm> -m <mode> -i <input> -o <output>
 ### Ví dụ
 
 ```bash
-# Nén
-compressor.exe -a rle -m c -i input.txt -o output.rle
+# Nén bằng Huffman
+compressor.exe -a huff -m c -i input.txt -o output.huff
 
-# Giải nén
-compressor.exe -a rle -m d -i output.rle -o decompressed.txt
+# Giải nén bằng Huffman
+compressor.exe -a huff -m d -i output.huff -o decompressed.txt
+```
+
+Huffman làm việc theo byte và hỗ trợ cả file rỗng, file chỉ có một ký tự,
+ký tự ASCII mở rộng và dữ liệu nhị phân. File `.huff` chứa chữ ký `HUF1`, kích
+thước ban đầu, bảng tần suất và bitstream đã mã hóa, nên có thể tự giải nén mà
+không cần lưu cây Huffman riêng.
+
+Chạy kiểm thử round-trip có sẵn:
+
+```bash
+make test
 ```
 
 ---

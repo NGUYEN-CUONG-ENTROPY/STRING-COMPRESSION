@@ -9,3 +9,6 @@ experimental/compressed/**/*
 !experimental/compressed/**/.gitkeep
 experimental/decompressed/**/*
 !experimental/decompressed/**/.gitkeep
+
+build/
+tmp/

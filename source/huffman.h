@@ -3,7 +3,7 @@
 
 #include <string>
 
-void compress_huffman(const std::string& input_path, const std::string& output_path);
-void decompress_huffman(const std::string& input_path, const std::string& output_path);
+void compress_huffman(const std::string &inputPath, const std::string &outputPath);
+void decompress_huffman(const std::string &inputPath, const std::string &outputPath);
 
-#endif // HUFFMAN_H
+#endif

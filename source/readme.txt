@@ -30,8 +30,8 @@ CSC10004 - Summer 2026
    -h, --help hien thi huong dan su dung
 
 3. Examples:
-   compressor.exe -a rle -m c -i input.txt -o output.rle
-   compressor.exe -a rle -m d -i output.rle -o decompressed.txt
+   compressor.exe -a huff -m c -i input.txt -o output.huff
+   compressor.exe -a huff -m d -i output.huff -o decompressed.txt
 
    Ket qua in ra man hinh (vi du voi puzzle.txt = "AAAAABBBBBCCCCCDDDDD"):
    Compression complete.
@@ -55,6 +55,9 @@ CSC10004 - Summer 2026
 
    Chay bo test round-trip cua RLE:
    > make test-rle
+   The Huffman implementation supports empty, single-symbol, ASCII, and binary files.
+   Run the included round-trip test via:
+   > make test
 
 5. Dinh dang file nen cua RLE:
    Day cac cap 2 byte [count][value], khong co header.
