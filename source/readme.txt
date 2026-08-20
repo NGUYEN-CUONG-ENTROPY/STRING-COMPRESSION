@@ -13,13 +13,12 @@ CSC10004 - Summer 2026
    Modes:     c (compress), d (decompress)
 
 3. Examples:
-   compressor.exe -a rle -m c -i input.txt -o output.rle
-   compressor.exe -a rle -m d -i output.rle -o decompressed.txt
+   compressor.exe -a huff -m c -i input.txt -o output.huff
+   compressor.exe -a huff -m d -i output.huff -o decompressed.txt
 
 4. Tests:
-   Edge case tests: tests/input/ (small files like empty.txt, single_char.txt)
-   Expected outputs: tests/expected/
-   Run quick test via:
+   The Huffman implementation supports empty, single-symbol, ASCII, and binary files.
+   Run the included round-trip test via:
    > make test
 
 5. Experiments:
